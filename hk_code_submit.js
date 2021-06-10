@@ -34,54 +34,43 @@ browserPromise
         let loginPageWillBeClickedPromise = gtab.click(
             "button[data-analytics='LoginPassword']"
         );
-        let ipKitChallenge = gtab.waitForSelector(
-            ".card-content h3[title='Interview Preparation Kit']", { visible: true }
-        );
-        let combinedPromise = Promise.all([
-            loginPageWillBeClickedPromise,
-            gtab.waitForNavigation({ waitUntil: "networkidle0" }),
-            ipKitChallenge,
-        ]);
-        return combinedPromise;
+        return loginPageWillBeClickedPromise;
     })
     .then(function() {
-        let clickedPromise = gtab.click(
+        let clickIPKit = waitAndClick(
             ".card-content h3[title='Interview Preparation Kit']"
         );
-        let clickChallengeElementPromise = gtab.waitForSelector(
-            "a[data-attr1='warmup']", { visible: true }
-        );
-        let combinedPromise = Promise.all([
-            clickedPromise,
-            gtab.waitForNavigation({ waitUntil: "networkidle0" }),
-            clickChallengeElementPromise,
-        ]);
-        return combinedPromise;
+        return clickIPKit;
     })
     .then(function() {
-        let clickChallenge = gtab.click("a[data-attr1='warmup']");
-        let salesByMatchPromise = gtab.waitForSelector(
-            ".ui-btn.ui-btn-normal.primary-cta.ui-btn-primary.ui-btn-styled", { visible: true }
-        );
-        let combinedPromise = Promise.all([
-            clickChallenge,
-            gtab.waitForNavigation({ waitUntil: "networkidle0" }),
-            salesByMatchPromise,
-        ]);
-        return combinedPromise;
+        let clickChallenge = waitAndClick("a[data-attr1='warmup']");
+        return clickChallenge;
     })
     .then(function() {
-        let clickQuestion = gtab.click(
+        let clickQuestion = waitAndClick(
             ".ui-btn.ui-btn-normal.primary-cta.ui-btn-primary.ui-btn-styled"
         );
-        let combinedPromise = Promise.all([
-            clickQuestion,
-            gtab.waitForNavigation({ waitUntil: "networkidle0" }),
-        ]);
-        return combinedPromise;
+        return clickQuestion;
     })
     .catch(function(err) {
         console.log(err);
     });
+
+function waitAndClick(selector) {
+    return new Promise(function(resolve, reject) {
+        let selectorWaitPromise = gtab.waitForSelector(selector, { visible: true });
+        selectorWaitPromise
+            .then(function() {
+                let selectorClickPromise = gtab.click(selector);
+                return selectorClickPromise;
+            })
+            .then(function() {
+                resolve();
+            })
+            .catch(function() {
+                reject();
+            });
+    });
+}
 
 console.log("After");
