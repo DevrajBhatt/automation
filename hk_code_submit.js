@@ -1,5 +1,6 @@
 let puppeteer = require("puppeteer");
 let { password, email } = require("../secrets.js");
+let { codes } = require("./code.js");
 let gtab;
 console.log("before");
 let browserPromise = puppeteer.launch({
@@ -43,19 +44,22 @@ browserPromise
         return clickIPKit;
     })
     .then(function() {
-        let clickChallenge = waitAndClick("a[data-attr1='warmup']");
-        return clickChallenge;
+        let warmupClick = waitAndClick("a[data-attr1='warmup']");
+        return warmupClick;
     })
     .then(function() {
-        let clickQuestion = waitAndClick(
-            ".ui-btn.ui-btn-normal.primary-cta.ui-btn-primary.ui-btn-styled"
-        );
-        return clickQuestion;
+        return gtab.url();
+    })
+    .then(function(url) {
+        console.log(url);
+        let questionObj = codes[0];
+        questionSolver(url, questionObj.soln, questionObj.qName);
     })
     .catch(function(err) {
         console.log(err);
     });
 
+//promise based function
 function waitAndClick(selector) {
     return new Promise(function(resolve, reject) {
         let selectorWaitPromise = gtab.waitForSelector(selector, { visible: true });
@@ -67,8 +71,36 @@ function waitAndClick(selector) {
             .then(function() {
                 resolve();
             })
-            .catch(function() {
-                reject();
+            .catch(function(err) {
+                reject(err);
+            });
+    });
+}
+
+function questionSolver(modulepageurl, code, questionName) {
+    return new Promise(function(resolve, reject) {
+        //page visit
+        let reachedPageUrlPromise = gtab.goto(modulepageurl);
+        reachedPageUrlPromise
+            .then(function() {
+                //page h4 -> matching h4 -> click
+                //function will execute inside the browser
+                function browserconsolerunFn(questionName) {
+                    let allH4Elem = document.querySelectorAll("h4");
+                    let textArr = [];
+                    for (let i = 0; i < allH4Elem.length; i++) {
+                        let myQuestion = allH4Elem[i].innerText.split("\n")[0];
+                        textArr.push(myQuestion);
+                    }
+                    let idx = textArr.indexOf(questionName);
+                    console.log(idx);
+                    allH4Elem[idx].click();
+                }
+                let pageClickPromise = gtab.evaluate(browserconsolerunFn, questionName);
+                return pageClickPromise;
+            })
+            .then(function() {
+                resolve();
             });
     });
 }
