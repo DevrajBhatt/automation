@@ -100,7 +100,56 @@ function questionSolver(modulepageurl, code, questionName) {
                 return pageClickPromise;
             })
             .then(function() {
+                //checkbox click
+                let inputWIllBeClickedPromise = waitAndClick(".checkbox-input");
+                return inputWIllBeClickedPromise;
+            })
+            .then(function() {
+                //type
+                let codeWIllBeTypedPromise = gtab.type(".input-wrap", code);
+                return codeWIllBeTypedPromise;
+            })
+            .then(function() {
+                let controlIsHeldPromise = gtab.keyboard.down("Control");
+                return controlIsHeldPromise;
+            })
+            .then(function() {
+                //ctrl a
+                let aIsPressedPromise = gtab.keyboard.press("a");
+                return aIsPressedPromise;
+            })
+            .then(function() {
+                //cntrl x
+                let cutPromise = gtab.keyboard.press("x");
+                return cutPromise;
+            })
+            .then(function() {
+                let editorWillBeCLickedPromise = gtab.click(
+                    ".monaco-editor.no-user-select.vs", { delay: 100 }
+                );
+                return editorWillBeCLickedPromise;
+            })
+            .then(function() {
+                //ctrl a
+                let aIsPressedPromise = gtab.keyboard.press("a");
+                return aIsPressedPromise;
+            })
+            .then(function() {
+                //ctrl v
+                let pastePromise = gtab.keyboard.press("v");
+                return pastePromise;
+            })
+            .then(function() {
+                let submitIsClickedPromise = gtab.click(
+                    ".ui-btn.ui-btn-normal.ui-btn-primary.pull-right.hr-monaco-submit.ui-btn-styled"
+                );
+                return submitIsClickedPromise;
+            })
+            .then(function() {
                 resolve();
+            })
+            .catch(function(err) {
+                reject(err);
             });
     });
 }
