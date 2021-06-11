@@ -53,7 +53,12 @@ browserPromise
     .then(function(url) {
         console.log(url);
         let questionObj = codes[0];
-        questionSolver(url, questionObj.soln, questionObj.qName);
+        let fqsp = questionSolver(url, questionObj.soln, questionObj.qName);
+        for (let i = 1; i < codes.length; i++) {
+            fqsp = fqsp.then(function() {
+                return questionSolver(url, codes[i].soln, codes[i].qName);
+            });
+        }
     })
     .catch(function(err) {
         console.log(err);
